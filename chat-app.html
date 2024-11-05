@@ -23,7 +23,7 @@
     <input type="text" id="textInput" placeholder="Enter your text" required style="padding: 10px;">
     <button type="submit" style="padding: 10px;">Send message</button>
   </form>
-  <script type="module">
+ <script type="module">
     // Import necessary Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, updateDoc, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
@@ -42,9 +42,6 @@
     // Initialize Firebase and Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // Current user's name (update this to get the logged-in user's name dynamically)
-    const currentUserName = "Diarra"; // Example current user name
 
     // References
     const textCollection = collection(db, "publicTexts");
@@ -75,15 +72,14 @@
       e.preventDefault();
       const textInput = document.getElementById("textInput").value;
 
-      // Add new text to Firestore with a timestamp and sender name
+      // Add new text to Firestore with a timestamp
       await addDoc(textCollection, { 
         text: textInput, 
-        timestamp: serverTimestamp(),
-        sender: currentUserName // Add current user as the sender
+        timestamp: serverTimestamp() 
       });
-      document.getElementById("textInput").value = ""; // Clear input field
-
-      // Set typing status to false after sending a message
+      
+      // Clear input field and update typing status
+      document.getElementById("textInput").value = ""; 
       await updateDoc(typingStatusDoc, { isTyping: false });
     });
 
@@ -112,17 +108,16 @@
     onSnapshot(orderedQuery, (snapshot) => {
       const textDisplay = document.getElementById("textDisplay");
       textDisplay.innerHTML = ""; // Clear current displayed texts
-
       snapshot.forEach((doc) => {
         const data = doc.data();
         const textItem = document.createElement("p");
 
-        // Determine if the message is from the current user or the other user
-        const senderLabel = data.sender === currentUserName ? "(Me)" : "(Him)";
-        const timeAgoText = timeAgo(data.timestamp ? data.timestamp.toDate() : new Date());
+        // Convert Firestore timestamp to JavaScript Date
+        const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+        const timeAgoText = timeAgo(timestamp);
 
-        // Display text with sender label and time ago
-        textItem.textContent = `${senderLabel} ${data.text} (${timeAgoText})`;
+        // Display text with time ago
+        textItem.textContent = `${data.text} (${timeAgoText})`;
         textDisplay.appendChild(textItem);
       });
     });
