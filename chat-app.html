@@ -115,6 +115,9 @@
         // Convert Firestore timestamp to JavaScript Date
         const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
         const timeAgoText = timeAgo(timestamp);
+// Determine if the message is from the current user or the other user
+        const senderLabel = data.sender === currentUserName ? "(Me)" : "(Him)";
+        const timeAgoText = timeAgo(data.timestamp ? data.timestamp.toDate() : new Date());
 
         // Display text with time ago
         textItem.textContent = `${data.text} (${timeAgoText})`;
